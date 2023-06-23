@@ -1,4 +1,4 @@
-package Sword.Group.FirstTask.jwt;
+package Sword.Group.FirstTask.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

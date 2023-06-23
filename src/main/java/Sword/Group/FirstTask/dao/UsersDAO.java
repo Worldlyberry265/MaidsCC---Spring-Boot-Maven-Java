@@ -1,4 +1,4 @@
-package Sword.Group.FirstTask.dto;
+package Sword.Group.FirstTask.dao;
 
 import java.util.List;
 
@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import Sword.Group.FirstTask.model.Role;
 import Sword.Group.FirstTask.model.Users;
 
-public interface UsersDTO { // Data Access Object
+public interface UsersDAO { // Data Access Object
 
 	String save(Users user);
 
@@ -19,8 +19,8 @@ public interface UsersDTO { // Data Access Object
 
 	String AuthenticateUser(Users user);
 
-	int getIdByUsername(String Username);
+//	int getIdByUsername(String Username);
 
-	List<Role> getUserRoles(int userId);
+	List<Role> getUserRoles(String Username);
 
 }

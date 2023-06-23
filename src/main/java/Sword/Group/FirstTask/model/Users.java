@@ -2,13 +2,16 @@ package Sword.Group.FirstTask.model;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
+import Sword.Group.FirstTask.dao.UsersDAO;
+
 //@Entity
 public class Users {
 
 //	@Id
 //	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int ID;
-
 	private String Username;
 	private String Password;
 	private String Email;
@@ -25,8 +28,12 @@ public class Users {
 		this.roles = roles;
 	}
 
-	public long getID() {
+	public int getID() {
 		return ID;
+	}
+
+	public Users() {
+
 	}
 
 	public Users(String username, String password, String email) {

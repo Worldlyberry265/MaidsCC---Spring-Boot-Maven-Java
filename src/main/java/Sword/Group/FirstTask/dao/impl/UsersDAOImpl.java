@@ -1,4 +1,4 @@
-package Sword.Group.FirstTask.dto;
+package Sword.Group.FirstTask.dao.impl;
 
 import java.util.List;
 import java.util.Map;
@@ -18,11 +18,12 @@ import org.springframework.stereotype.Repository;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import Sword.Group.FirstTask.dao.UsersDAO;
 import Sword.Group.FirstTask.model.Role;
 import Sword.Group.FirstTask.model.Users;
 
 @Repository
-public class UsersDTOImpl implements UsersDTO {
+public class UsersDAOImpl implements UsersDAO {
 
 	@Autowired
 	JdbcTemplate Jtemplate;
@@ -227,22 +228,33 @@ public class UsersDTOImpl implements UsersDTO {
 		}
 	}
 
+//	@Override
+//	public int getIdByUsername(String Username) {
+//
+//		String sql2 = "SELECT ID FROM users WHERE Username = ? LIMIT 1";
+//		int Id = Jtemplate.queryForObject(sql2, Integer.class, Username);
+//
+//		return Id;
+//	}
+
+	@SuppressWarnings("deprecation")
 	@Override
-	public int getIdByUsername(String Username) {
-
-		String sql2 = "SELECT ID FROM users WHERE Username = ? LIMIT 1";
-		int Id = Jtemplate.queryForObject(sql2, Integer.class, Username);
-
-		return Id;
-	}
-
-	@Override
-	public List<Role> getUserRoles(int userId) {
+	public List<Role> getUserRoles(String Username) {
+		
 		List<Role> roles = new ArrayList<>();
-
+		
+		int Id = (Integer) null;
 		try {
-			String sql = "SELECT r.ID, r.Name FROM Roles r INNER JOIN user_roles ur ON r.ID = ur.Role_ID WHERE ur.User_ID = ?";
-			Jtemplate.query(sql, new Object[] { userId }, (resultSet) -> {
+		String sql2 = "SELECT ID FROM users WHERE Username = ? LIMIT 1";
+		 Id = Jtemplate.queryForObject(sql2, Integer.class, Username);
+		 
+		}catch (DataAccessException e) {
+			e.printStackTrace();
+		}
+		
+		try {
+			String sql = "SELECT r.ID, r.Name FROM roles r INNER JOIN user_roles ur ON r.ID = ur.Role_ID WHERE ur.User_ID = ?";
+			Jtemplate.query(sql, new Object[] { Id }, (resultSet) -> {
 
 				int roleId = resultSet.getInt("ID");
 

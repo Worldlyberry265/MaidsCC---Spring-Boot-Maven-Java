@@ -1,4 +1,4 @@
-package Sword.Group.FirstTask.dto;
+package Sword.Group.FirstTask.controller;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -20,15 +20,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import Sword.Group.FirstTask.dao.UsersDAO;
 import Sword.Group.FirstTask.exceptions.CustomException;
-import Sword.Group.FirstTask.jwt.JwtService;
 import Sword.Group.FirstTask.model.Users;
+import Sword.Group.FirstTask.security.JwtService;
 
 @RestController
 public class UsersController {
 
 	@Autowired // Instead ProductService service
-	private UsersDTO eDAO; // Instead ProductService service
+	private UsersDAO eDAO; // Instead ProductService service
 
 	@Autowired
 	private JwtService jwtService;
@@ -62,19 +63,24 @@ public class UsersController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(exception);
 		}
 	}
-	
+
 	@PostMapping("/authenticate")
-    public String authenticateAndGetToken(@RequestBody Users user) {
-		//The authenticate method will fetch the userDetails from the Db and compare it with the authRequest
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
-        if (authentication.isAuthenticated()) {
-            return jwtService.generateToken(user.getUsername());
-        } else {
-            throw new UsernameNotFoundException("invalid user request !"); //Or wrong pasword
-        }
+	public String authenticateAndGetToken(@RequestBody Users user) {
+		// The authenticate method will fetch the userDetails from the Db and compare it
+		// with the authRequest
+//		System.out.println("User: " + user.getUsername());
+		Authentication authentication = authenticationManager
+				.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
+//		System.out.println("Pass: " + authentication.getCredentials());
+//		System.out.println("Pass: " + user.getPassword());
 
+		if (authentication.isAuthenticated()) {
+			return jwtService.generateToken(user.getUsername());
+		} else {
+			throw new UsernameNotFoundException("invalid user request !"); // Or wrong pasword
+		}
 
-    }
+	}
 
 	@GetMapping("/AuthenticateUser")
 	public ResponseEntity<Object> authenticateUser(@RequestBody Users user) {
@@ -109,4 +115,3 @@ public class UsersController {
 	}
 
 }
-
