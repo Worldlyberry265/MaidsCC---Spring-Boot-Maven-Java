@@ -21,23 +21,17 @@ public class UserInfoUserDetails implements UserDetails {
 	private String username;
 	private String password;
 	private List<GrantedAuthority> authorities;
-	
-//	private UserInfoUserDetailsService service;
 
-//	@Autowired
-//	private UsersDAO eDAO;
-
-	public UserInfoUserDetails(Users user) { // Extract the roles of the user and map to a list
+	public UserInfoUserDetails(Users user, UserInfoUserDetailsService service) { // Extract the roles of the user and
+																					// map to a list
 		id = user.getID();
 		username = user.getUsername();
 		password = user.getPassword();
-		
-		authorities = null;
 
-//		authorities = eDAO.getUserRoles(username).stream().map(role -> new SimpleGrantedAuthority(role.getName()))
-//				.collect(Collectors.toList());
-//		authorities = user.getRoles().stream().map(role -> new SimpleGrantedAuthority(role.getName()))
-//				.collect(Collectors.toList());
+//		System.out.println("IM OUTSIDE");
+		authorities = service.getUserRoles(username).stream().map(role -> new SimpleGrantedAuthority(role.getName()))
+				.collect(Collectors.toList());
+//		System.out.println("IM INSIDE");
 		// Permissions??????
 	}
 
@@ -46,12 +40,6 @@ public class UserInfoUserDetails implements UserDetails {
 		return authorities;
 	}
 
-	public void setAuthorities(List<Role> roles) {
-		authorities = roles.stream().map(role -> new SimpleGrantedAuthority(role.getName()))
-				.collect(Collectors.toList());
-
-	}
-	
 	public int getId() {
 		return id;
 	}

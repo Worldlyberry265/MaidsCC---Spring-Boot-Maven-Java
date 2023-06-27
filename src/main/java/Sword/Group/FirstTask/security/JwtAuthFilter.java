@@ -68,6 +68,7 @@
 package Sword.Group.FirstTask.security;
 
 
+import Sword.Group.FirstTask.model.Role;
 import Sword.Group.FirstTask.userDetails.UserInfoUserDetailsService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -77,6 +78,7 @@ import org.aspectj.weaver.patterns.IToken;
 import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -86,6 +88,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
 
 //@Order(Ordered.HIGHEST_PRECEDENCE)
 @Component
@@ -95,7 +99,7 @@ public class JwtAuthFilter extends OncePerRequestFilter { //So we can apply the 
     private JwtService jwtService;
 
     @Autowired
-    private UserInfoUserDetailsService userDetailsService;
+    UserInfoUserDetailsService userDetailsService;
 
     //This filter will be applied to every Http request that arrives
     @Override
@@ -115,8 +119,12 @@ public class JwtAuthFilter extends OncePerRequestFilter { //So we can apply the 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) { // no other user is currently authenticated or being authenticated
            //it also checks if the user is already authenticated, so it doesn't waste time re-authenticating him/her
         	UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+//        	userDetails.set userDetailsService.getUserRoles(username);
+        	Collection<? extends GrantedAuthority> auth = userDetails.getAuthorities();
+//        	System.out.println("ABOUT TO STUCCK");
             if (jwtService.validateToken(token, userDetails)) {
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, null);
+                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, auth);
+//               System.out.println("IM STUCK HERE");
                 //To update the authentication at SecurityContextHolder
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);

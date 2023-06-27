@@ -5,23 +5,18 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import Sword.Group.FirstTask.dao.UsersDAO;
+import Sword.Group.FirstTask.userDetails.UserInfoUserDetails;
 
-//@Entity
 public class Users {
 
-//	@Id
-//	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int ID;
 	private String Username;
 	private String Password;
 	private String Email;
-
-//	@ManyToMany(fetch = FetchType.EAGER)
-//	@JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "User_ID"), inverseJoinColumns = @JoinColumn(name = "Role_ID"))
 	private List<Role> roles;
 
-	public List<Role> getRoles() {
-		return roles;
+	public List<Role> getRoles(UserInfoUserDetails UserDetail) {
+		return (List<Role>) UserDetail.getAuthorities();
 	}
 
 	public void setRoles(List<Role> roles) {
@@ -36,11 +31,12 @@ public class Users {
 
 	}
 
-	public Users(String username, String password, String email) {
+	public Users(String username, String password, String email,List<Role> Roles) {
 		super();
 		Username = username;
 		Password = password;
 		Email = email;
+		roles = Roles;
 	}
 
 	public void setID(int iD) {

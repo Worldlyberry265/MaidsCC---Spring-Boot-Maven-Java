@@ -42,8 +42,10 @@
 package Sword.Group.FirstTask.exceptions;
 
 import java.time.ZonedDateTime;
-
+import java.util.HashMap;
+import java.util.Map;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 public class CustomException extends RuntimeException {
 
@@ -80,4 +82,15 @@ public class CustomException extends RuntimeException {
 	public String getPath() {
 		return path;
 	}
+	 public ResponseEntity<Object> toResponseEntity() {
+	        Map<String, Object> response = new HashMap<>();
+	        response.put("timestamp", timestamp);
+	        response.put("status", status);
+	        response.put("error", error);
+	        response.put("message", message);
+	        response.put("path", path);
+
+	        return ResponseEntity.status(status).body(response);
+	    }
+	
 }

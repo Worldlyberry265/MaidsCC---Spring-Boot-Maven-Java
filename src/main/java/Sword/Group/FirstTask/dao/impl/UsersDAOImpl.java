@@ -2,6 +2,7 @@ package Sword.Group.FirstTask.dao.impl;
 
 import java.util.List;
 import java.util.Map;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -12,15 +13,21 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
-
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.DigestUtils;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import Sword.Group.FirstTask.dao.UsersDAO;
+import Sword.Group.FirstTask.exceptions.CustomException;
 import Sword.Group.FirstTask.model.Role;
 import Sword.Group.FirstTask.model.Users;
+import Sword.Group.FirstTask.security.JwtService;
 
 @Repository
 public class UsersDAOImpl implements UsersDAO {
@@ -30,23 +37,37 @@ public class UsersDAOImpl implements UsersDAO {
 	@Autowired
 	BCryptPasswordEncoder passwordEncoder;
 
+	@Autowired
+	private JwtService jwtService;
+
+	@Autowired
+	private AuthenticationManager authenticationManager;
+
 	@Override
-	public String save(Users user) {
+	public ResponseEntity<Object> save(Users user) {
 		try {
 			// Validate input for special characters
 			if (!isUsernametValid(user.getUsername())) {
-				throw new IllegalArgumentException("INVALID USERNAME! ONLY LETTERS AND SPACES ARE ALLOWED.");
+				CustomException exception = new CustomException(HttpStatus.BAD_REQUEST.value(), "BAD_REQUEST",
+						"Invalid Username, Only Letters and spaces are allowed.", "/SaveUser", ZonedDateTime.now());
+				return exception.toResponseEntity();
 			}
 
 			// Validate input for special characters
 			if (!isPassValid(user.getPassword())) {
-				throw new IllegalArgumentException(
-						"INVALID Password! ONLY LETTERS, NUMBERS, AND !@#$%^&* ARE ALLOWED.");
+				CustomException exception = new CustomException(HttpStatus.BAD_REQUEST.value(), "BAD_REQUEST",
+						"Invalid Password, Only letters, numbers, and !@#$%^&* are allowed", "/SaveUser",
+						ZonedDateTime.now());
+				return exception.toResponseEntity();
+//				throw new IllegalArgumentException(
+//						"INVALID Password! ONLY LETTERS, NUMBERS, AND !@#$%^&* ARE ALLOWED.");
 			}
 
 			// Validate input for special characters
 			if (!isEmailValid(user.getEmail())) {
-				throw new IllegalArgumentException("INVALID Email! ONLY LETTERS, NUMBERS, AND .-_ ARE ALLOWED.");
+				CustomException exception = new CustomException(HttpStatus.BAD_REQUEST.value(), "BAD_REQUEST",
+						"Invalid Email, Only letters, numbers, and .-_ are allowed", "/SaveUser", ZonedDateTime.now());
+				return exception.toResponseEntity();
 			}
 
 			String hashedPassword = passwordEncoder.encode(user.getPassword());
@@ -54,76 +75,31 @@ public class UsersDAOImpl implements UsersDAO {
 			// Check if the email is unique
 			boolean isEmailUnique = isEmailUnique(user.getEmail());
 			if (!isEmailUnique) {
-				return ("Email already exist.");
+				CustomException exception = new CustomException(HttpStatus.BAD_REQUEST.value(), "BAD_REQUEST",
+						"Email already exists, You should use a different email.", "/SaveUser", ZonedDateTime.now());
+//				return ResponseEntity.status(HttpStatus.FORBIDDEN).body(exception);
+				return exception.toResponseEntity();
 			}
 
 			int result = Jtemplate.update("INSERT INTO users (Username, Password, Email) VALUES (?, ?, ?)",
 					user.getUsername(), hashedPassword, user.getEmail());
 
 			if (result > 0) {
-				return "User saved successfully.";
+				return ResponseEntity.ok("User Saved");
 			}
 		} catch (DataAccessException e) {
 			// Exception occurred while accessing the data
-			return "An error occurred while accessing the data.";
+			CustomException exception = new CustomException(HttpStatus.INTERNAL_SERVER_ERROR.value(),
+					"INTERNAL_SERVER_ERROR", "An error occurred while accessing the data", "/SaveUser",
+					ZonedDateTime.now());
+			return exception.toResponseEntity();
+
 		}
-		return "Failed to save the user."; // not important
+		CustomException exception = new CustomException(HttpStatus.SERVICE_UNAVAILABLE.value(), // Another other value?
+				"SERVICE_UNAVAILABLE", "An error occurred while accessing the data", "/SaveUser", ZonedDateTime.now());
+		return exception.toResponseEntity();
 
 	}
-
-//	@Override
-//	public ResponseEntity<ResponseStatus> save(Users user) {
-//
-//		try {
-//
-//			// Validate input for special characters
-//			if (!isUsernametValid(user.getUsername())) {
-////				throw new IllegalArgumentException("INVALID USERNAME! ONLY LETTERS AND SPACES ARE ALLOWED.");
-//
-//				throw new RequestException("INVALID USERNAME");
-////				throw new IllegalStateException("INVALID USERNAME 22222222");
-//			}
-//
-//			// Validate input for special characters
-//			if (!isPassValid(user.getPassword())) {
-//				throw new IllegalArgumentException(
-//						"INVALID Password! ONLY LETTERS, NUMBERS, AND !@#$%^&* ARE ALLOWED .");
-//			}
-//
-//			// Validate input for special characters
-//			if (!isEmailValid(user.getEmail())) {
-//				throw new IllegalArgumentException("INVALID Email! ONLY LETTERS, NUMBERS, AND .-_ ARE ALLOWED .");
-//			}
-//
-//			String hashedPassword = passwordEncoder.encode(user.getPassword());
-//
-//			// Check if the email is unique
-//			boolean isEmailUnique = isEmailUnique(user.getEmail());
-//			if (!isEmailUnique) {
-//				throw new IllegalArgumentException("EMAIL IS ALREADY REGISTERED.");
-//			}
-//
-//			int result = Jtemplate.update("INSERT INTO users (Username, Password, Email) VALUES (?, ?, ?)", // removed ,
-//																											// Salt and
-//																											// 1 ?
-//					new Object[] { user.getUsername(), hashedPassword, user.getEmail() }); // removed the salt
-//
-//			if (result > 0) {
-//				return new ResponseEntity<>(HttpStatus.OK); // Return HTTP 200 OK if the user was successfully saved
-//			} else {
-//				return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR); // Return HTTP 500 Internal Server Error
-//																				// if the user was not saved
-//			}
-//		} catch (Exception e) { // error while saving the user in the database
-//
-//			System.out.println("An error occurred while saving the user: " + e.getMessage());
-//
-//			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR); // Return HTTP 500 Internal Server Error in
-//																			// case of any exception
-//
-//		}
-//
-//	}
 
 	// All the regexes below reduce significantly the percentage of successful sql
 	// injections by not allowing semicolons and quotes
@@ -164,112 +140,68 @@ public class UsersDAOImpl implements UsersDAO {
 				ID);
 	}
 
-//	public String AuthenticateUser(Users user) {
-//		String sql = "SELECT COUNT(*) FROM users WHERE Email = ? AND Password = ? LIMIT 1";
-//
-//		// Validate input for special characters
-//		if (!isEmailValid(user.getEmail())) {
-//			throw new IllegalArgumentException("INVALID Email! ONLY LETTERS, NUMBERS, AND .-_ ARE ALLOWED .");
-//		}
-//
-//		// Validate input for special characters
-//		if (!isPassValid(user.getPassword())) {
-//			throw new IllegalArgumentException("INVALID Password! ONLY LETTERS, NUMBERS, AND !@#$%^&* ARE ALLOWED .");
-//		}
-//
-//		String sql2 = "SELECT Password FROM users WHERE Email = ? LIMIT 1";
-//		String RetrievedPassword = Jtemplate.queryForObject(sql2, String.class, user.getEmail());
-//
-//		try {
-//			int result = Jtemplate.queryForObject(sql, Integer.class, user.getEmail(), RetrievedPassword); // ASK FOR
-//																											// THIS
-//			if (result == 1) {
-//				if ((passwordEncoder.matches(user.getPassword(), RetrievedPassword))) {
-//					return "Correct credentials, you may sign in.";
-//				} else {
-//					return "Incorrect password.";
-//				}
-//			} else {
-//				return "Incorrect email.";
-//			}
-//		} catch (DataAccessException e) {
-//			// Exception occurred while accessing the data
-//			return "An error occurred while accessing the data.";
-//		}
-//	}
 	@Override
-	public String AuthenticateUser(Users user) {
+	public ResponseEntity<Object> AuthenticateUser(Users user) {
 //	    String sql = "SELECT COUNT(*) FROM users WHERE Email = ? LIMIT 1";
 		String sql2 = "SELECT Password FROM users WHERE Email = ? LIMIT 1";
 
 		// Validate input for special characters
 		if (!isEmailValid(user.getEmail())) {
-			throw new IllegalArgumentException("INVALID Email! ONLY LETTERS, NUMBERS, AND .-_ ARE ALLOWED .");
+			CustomException exception = new CustomException(HttpStatus.BAD_REQUEST.value(), "BAD_REQUEST",
+					"Invalid Email, Only letters, numbers, and .-_ are allowed", "/AuthenticateUser",
+					ZonedDateTime.now());
+			return exception.toResponseEntity();
 		}
 
 		// Validate input for special characters
 		if (!isPassValid(user.getPassword())) {
-			throw new IllegalArgumentException("INVALID Password! ONLY LETTERS, NUMBERS, AND !@#$%^&* ARE ALLOWED .");
+			CustomException exception = new CustomException(HttpStatus.BAD_REQUEST.value(), "BAD_REQUEST",
+					"Invalid Paasword, Only letters, numbers, and !@#$%^&* are allowed", "/AuthenticateUser",
+					ZonedDateTime.now());
+			return exception.toResponseEntity();
 		}
 
 		try {
 
 			String retrievedPassword = Jtemplate.queryForObject(sql2, String.class, user.getEmail());
 			if (retrievedPassword != null && passwordEncoder.matches(user.getPassword(), retrievedPassword)) {
-				return "Correct credentials, you may sign in.";
+				return ResponseEntity.ok("You may sign in");
 			} else if (retrievedPassword != null) {
-				return "Incorrect password.";
+				CustomException exception = new CustomException(HttpStatus.UNAUTHORIZED.value(), "UNAUTHORIZED",
+						"You have entered a wrong password", "/AuthenticateUser", ZonedDateTime.now());
+				return exception.toResponseEntity();
 			} else {
-				return "Email not found.";
+				CustomException exception = new CustomException(HttpStatus.NOT_FOUND.value(), "NOT_FOUND",
+						"Please check your email and try again", "/AuthenticateUser", ZonedDateTime.now());
+				return exception.toResponseEntity();
 			}
 		} catch (DataAccessException e) {
-			// Exception occurred while accessing the data
-			return "An error occurred while accessing the data.";
+			CustomException exception = new CustomException(HttpStatus.INTERNAL_SERVER_ERROR.value(),
+					"INTERNAL_SERVER_ERROR", "An error occurred while accessing the data", "/AuthenticateUser",
+					ZonedDateTime.now());
+			return exception.toResponseEntity();
 		}
 	}
 
-//	@Override
-//	public int getIdByUsername(String Username) {
-//
-//		String sql2 = "SELECT ID FROM users WHERE Username = ? LIMIT 1";
-//		int Id = Jtemplate.queryForObject(sql2, Integer.class, Username);
-//
-//		return Id;
-//	}
-
-	@SuppressWarnings("deprecation")
 	@Override
-	public List<Role> getUserRoles(String Username) {
-		
-		List<Role> roles = new ArrayList<>();
-		
-		int Id = (Integer) null;
-		try {
-		String sql2 = "SELECT ID FROM users WHERE Username = ? LIMIT 1";
-		 Id = Jtemplate.queryForObject(sql2, Integer.class, Username);
-		 
-		}catch (DataAccessException e) {
-			e.printStackTrace();
+	public ResponseEntity<Object> authANDGetToken(@RequestBody Users user) {
+		// The authenticate method will fetch the userDetails from the Db and compare it
+		// with the authRequest
+//		System.out.println("User: " + user.getUsername());
+		Authentication authentication = authenticationManager
+				.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
+//		System.out.println("Pass: " + authentication.getCredentials());
+//		System.out.println("Pass: " + user.getPassword());
+
+		if (authentication.isAuthenticated()) {
+//			return ResponseEntity.ok(jwtService.generateToken(user.getUsername(),user.getRoles()));
+			return ResponseEntity.ok(jwtService.generateToken(user.getUsername()));
+
+		} else {
+			CustomException exception = new CustomException(HttpStatus.FORBIDDEN.value(), "FORBIDDEN",
+					"Wrong credentials", "/authenticate", ZonedDateTime.now());
+			return exception.toResponseEntity();
 		}
-		
-		try {
-			String sql = "SELECT r.ID, r.Name FROM roles r INNER JOIN user_roles ur ON r.ID = ur.Role_ID WHERE ur.User_ID = ?";
-			Jtemplate.query(sql, new Object[] { Id }, (resultSet) -> {
-
-				int roleId = resultSet.getInt("ID");
-
-				String roleName = resultSet.getString("Name");
-
-				Role role = new Role(roleId, roleName); // Create Role object using the fetched data
-				roles.add(role);
-				return role;
-			});
-		} catch (DataAccessException e) {
-			e.printStackTrace(); // Handle the exception appropriately
-		}
-		return roles;
-
-//		return roles;
 	}
 
 }
