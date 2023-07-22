@@ -7,48 +7,37 @@ import org.springframework.beans.factory.annotation.Autowired;
 import Sword.Group.FirstTask.dao.UsersDAO;
 import Sword.Group.FirstTask.userDetails.UserInfoUserDetails;
 
-public class Users {
+public class MiniUser {
 
-	private int ID;
+	
 	private String Username;
-	private String Password;
 	private String Email;
-	private String Address; //TAKE CARE HERE
-	private List<Role> roles;
+	private String Address; //TAKE CARE HEREE
+	private String Roles;
 
 //	public List<Role> getRoles(UserInfoUserDetails UserDetail) {
 //		return (List<Role>) UserDetail.getAuthorities();
 //	}
 
-	public int getID() {
-		return ID;
-	}
 
-	public Users() {
+
+	public MiniUser() {
 
 	}
 
-	public Users(String username, String password, String email, String address, List<Role>Roles) {
-		super();
-		Username = username;
-		Password = password;
-		Email = email;
-		Address = address;
-		roles = Roles;
-	}
-	public Users(String username, String email, String address, List<Role> Roles) {
+	public MiniUser(String username, String email, String address,  String roles) {
 		super();
 		Username = username;;
 		Email = email;
 		Address = address;
-		roles = Roles;
+		Roles = roles;
 	}
 
-	public List<Role> getRoles() {
-		return roles;
+	public String getRoles() {
+		return Roles;
 	}
-	public void setRoles(List<Role> roles) {
-		this.roles = roles;
+	public void setRoles(String roles) {
+		this.Roles = roles;
 	}
 
 	public String getAddress() {
@@ -59,9 +48,9 @@ public class Users {
 		Address = address;
 	}
 
-	public void setID(int iD) {
-		ID = iD;
-	}
+//	public void setID(int iD) {
+//		ID = iD;
+//	}
 
 	public String getUsername() {
 		return Username;
@@ -71,13 +60,13 @@ public class Users {
 		Username = username;
 	}
 
-	public String getPassword() {
-		return Password;
-	}
+//	public String getPassword() {
+//		return Password;
+//	}
 
-	public void setPassword(String password) {
-		Password = password;
-	}
+//	public void setPassword(String password) {
+//		Password = password;
+//	}
 
 	public String getEmail() {
 		return Email;

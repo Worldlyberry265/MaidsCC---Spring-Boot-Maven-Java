@@ -4,9 +4,11 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import Sword.Group.FirstTask.model.MiniUser;
 import Sword.Group.FirstTask.model.Role;
 import Sword.Group.FirstTask.model.Users;
 
@@ -14,7 +16,7 @@ public interface UsersDAO { // Data Access Object
 
 	ResponseEntity<Object> save(Users user);
 
-	List<Users> getAll();
+	List<MiniUser> getAll(String field);
 
 	Users getById(int id);
 	

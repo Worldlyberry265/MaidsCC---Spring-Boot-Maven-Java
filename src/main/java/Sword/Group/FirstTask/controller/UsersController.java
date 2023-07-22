@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import Sword.Group.FirstTask.dao.UsersDAO;
 import Sword.Group.FirstTask.exceptions.CustomException;
+import Sword.Group.FirstTask.model.MiniUser;
 import Sword.Group.FirstTask.model.Users;
 import Sword.Group.FirstTask.security.JwtService;
 
@@ -31,9 +32,9 @@ public class UsersController {
 	@Autowired // Instead ProductService service
 	private UsersDAO eDAO; // Instead ProductService service
 
-	@GetMapping("/Users")
-	public List<Users> getUsers() {
-		return eDAO.getAll();
+	@GetMapping("/homepage/getUsers/{field}")
+	public  List<MiniUser> getUsers(@PathVariable String field) { //@RequestParam (defaultValue = "Username")
+		return eDAO.getAll(field);
 	}
 
 	@GetMapping("/Users/{ID}")

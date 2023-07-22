@@ -89,7 +89,7 @@ public class JwtService {
 	private String createToken(Map<String, Object> claims, String userName, List<Role> authorities) {
 		return Jwts.builder().setClaims(claims).setSubject(userName).claim("authorities: ", authorities)
 				.setIssuedAt(new Date()) // System.currentTimeMillis()
-				.setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24)) // + bcz we are adding 24 hours																			
+				.setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // for 60 mins only																
 				.signWith(getSignKey(), SignatureAlgorithm.HS256).compact();
 	}
 

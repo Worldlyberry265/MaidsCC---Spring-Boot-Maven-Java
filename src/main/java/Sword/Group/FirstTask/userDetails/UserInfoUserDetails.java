@@ -28,11 +28,9 @@ public class UserInfoUserDetails implements UserDetails {
 		username = user.getUsername();
 		password = user.getPassword();
 
-//		System.out.println("IM OUTSIDE");
+
 		authorities = service.getUserRoles(username).stream().map(role -> new SimpleGrantedAuthority(role.getName()))
 				.collect(Collectors.toList());
-//		System.out.println("IM INSIDE");
-		// Permissions??????
 	}
 
 	@Override

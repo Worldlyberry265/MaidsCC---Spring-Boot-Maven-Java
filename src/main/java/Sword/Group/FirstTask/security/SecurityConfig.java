@@ -21,6 +21,8 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import Sword.Group.FirstTask.userDetails.UserInfoUserDetailsService;
+import org.springframework.http.HttpMethod;
+import org.springframework.web.cors.CorsConfiguration;
 
 @Configuration
 @EnableWebSecurity
@@ -52,6 +54,7 @@ public class SecurityConfig {
 
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	
 //		return http.csrf().disable().authorizeHttpRequests().requestMatchers("/products/new", "/products/authenticate")
 //				.permitAll().and().authorizeHttpRequests().requestMatchers("/products/**").authenticated().and()
 //				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
@@ -60,8 +63,14 @@ public class SecurityConfig {
 //		return http.csrf().disable().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
 //				.authenticationProvider(authenticationProvider())
 //				.addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class).build();
-		return http.csrf().disable().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-				.addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class).build();
+		return http.cors().configurationSource(request -> new CorsConfiguration().applyPermitDefaultValues())
+				.and()
+				.csrf().disable()
+				.sessionManagement()
+				.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+				.and()
+				.addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
+				.build();
 
 		// Disabled CsrfFilter, SecurityContextPersistenceFilter,
 		// Disabled UsernamePasswordAuthenticationFilter.
