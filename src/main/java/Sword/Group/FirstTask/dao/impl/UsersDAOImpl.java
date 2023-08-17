@@ -48,7 +48,8 @@ public class UsersDAOImpl implements UsersDAO {
 
 	@Override
 	public ResponseEntity<Object> update(MiniUser user) {
-		int id  = user.getId();
+		System.out.println("UserPassword: " + user.getPassword());
+		int id = user.getId();
 		String Pass = user.getPassword();
 		try {
 			// Validate input for special characters
@@ -59,16 +60,6 @@ public class UsersDAOImpl implements UsersDAO {
 			}
 
 			// Validate input for special characters
-			if (!isPassValid(user.getPassword())) {
-				CustomException exception = new CustomException(HttpStatus.BAD_REQUEST.value(), "BAD_REQUEST",
-						"Invalid Password, Only letters, numbers, and !@#$%^&* are allowed", "/UpdateUser",
-						ZonedDateTime.now());
-				return exception.toResponseEntity();
-//				throw new IllegalArgumentException(
-//						"INVALID Password! ONLY LETTERS, NUMBERS, AND !@#$%^&* ARE ALLOWED.");
-			}
-
-			// Validate input for special characters
 			if (!isEmailValid(user.getEmail())) {
 				CustomException exception = new CustomException(HttpStatus.BAD_REQUEST.value(), "BAD_REQUEST",
 						"Invalid Email, Only letters, numbers, and .-_ are allowed", "/UpdateUser",
@@ -76,19 +67,32 @@ public class UsersDAOImpl implements UsersDAO {
 				return exception.toResponseEntity();
 			}
 
-			String sql = "SELECT Password FROM users where ID = ? LIMIT 1";
-			try {
-				String password = Jtemplate.queryForObject(sql, new Object[] { id }, String.class);
-				if (user.getPassword() != password) {
-					Pass = passwordEncoder.encode(user.getPassword());
-				}
-			} catch (DataAccessException e) {
-				// Exception occurred while accessing the data
-				CustomException exception = new CustomException(HttpStatus.INTERNAL_SERVER_ERROR.value(),
-						"INTERNAL_SERVER_ERROR", "An error occurred while accessing the data", "/UpdateUser",
-						ZonedDateTime.now());
-				return exception.toResponseEntity();
+			if (user.getPassword() != null) {
 
+				// Validate input for special characters
+				if (!isPassValid(user.getPassword())) {
+					CustomException exception = new CustomException(HttpStatus.BAD_REQUEST.value(), "BAD_REQUEST",
+							"Invalid Password, Only letters, numbers, and !@#$%^&* are allowed", "/UpdateUser",
+							ZonedDateTime.now());
+					return exception.toResponseEntity();
+//					throw new IllegalArgumentException(
+//							"INVALID Password! ONLY LETTERS, NUMBERS, AND !@#$%^&* ARE ALLOWED.");
+				}
+
+				String sql = "SELECT Password FROM users where ID = ? LIMIT 1";
+				try {
+					String password = Jtemplate.queryForObject(sql, new Object[] { id }, String.class);
+					if (user.getPassword() != password) {
+						Pass = passwordEncoder.encode(user.getPassword());
+					}
+				} catch (DataAccessException e) {
+					// Exception occurred while accessing the data
+					CustomException exception = new CustomException(HttpStatus.INTERNAL_SERVER_ERROR.value(),
+							"INTERNAL_SERVER_ERROR", "An error occurred while accessing the data", "/UpdateUser",
+							ZonedDateTime.now());
+					return exception.toResponseEntity();
+
+				}
 			}
 			// Check if the email is unique
 //			System.out.println("TRIGGERED1");
@@ -121,13 +125,20 @@ public class UsersDAOImpl implements UsersDAO {
 					return exception.toResponseEntity();
 				}
 			}
-			String updateSql = "UPDATE users SET Username = ?, Password = ?, Email = ?, Address = ? WHERE ID = ?";
+			int result = 0;
+			if (user.getPassword() != null) {
+				String updateSql = "UPDATE users SET Username = ?, Password = ?, Email = ?, Address = ? WHERE ID = ?";
+				result = Jtemplate.update(updateSql, user.getUsername(), Pass, user.getEmail(), user.getAddress(), id);
+			} else {
+				String updateSql = "UPDATE users SET Username = ?, Email = ?, Address = ? WHERE ID = ?";
+				result = Jtemplate.update(updateSql, user.getUsername(), user.getEmail(), user.getAddress(), id);
+			}
 
-			int result = Jtemplate.update(updateSql, user.getUsername(), Pass, user.getEmail(), user.getAddress(), id);
-			int result1 = 0; //boolean1 = false;
-			//int result2 = 0;
-			//int result3 = 0;
-			System.out.println(user.getEmail()+user.getUsername()+user.getPassword()+user.getAddress()+user.getRoles());
+			int result1 = 0; // boolean1 = false;
+			// int result2 = 0;
+			// int result3 = 0;
+			System.out.println(
+					user.getEmail() + user.getUsername() + user.getPassword() + user.getAddress() + user.getRoles());
 			System.out.println("ROLES ARE " + user.getRoles());
 			String[] rolesArray = user.getRoles().split(",");
 
@@ -170,7 +181,8 @@ public class UsersDAOImpl implements UsersDAO {
 
 		}
 		CustomException exception = new CustomException(HttpStatus.SERVICE_UNAVAILABLE.value(), // Another other value?
-				"SERVICE_UNAVAILABLE", "An error occurred while accessing the data", "/UpdateUser", ZonedDateTime.now());
+				"SERVICE_UNAVAILABLE", "An error occurred while accessing the data", "/UpdateUser",
+				ZonedDateTime.now());
 		return exception.toResponseEntity();
 
 	}
@@ -549,7 +561,8 @@ public class UsersDAOImpl implements UsersDAO {
 				try {
 					// The authenticate method will fetch the userDetails from the Db and compare it
 					// with the authRequest
-//		System.out.println("User: " + user.getUsername());
+//		System.out.println("User: " + user.getEmail());
+//		System.out.println("foundUser: " + foundUser);
 					Authentication authentication = authenticationManager
 							.authenticate(new UsernamePasswordAuthenticationToken(foundUser, user.getPassword()));
 //			System.out.println("IM INNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN");
