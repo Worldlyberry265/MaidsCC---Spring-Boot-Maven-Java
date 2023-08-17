@@ -9,9 +9,10 @@ import Sword.Group.FirstTask.userDetails.UserInfoUserDetails;
 
 public class MiniUser {
 
-	
+	private int Id;
 	private String Username;
 	private String Email;
+	private String Password;
 	private String Address; //TAKE CARE HEREE
 	private String Roles;
 
@@ -25,8 +26,16 @@ public class MiniUser {
 
 	}
 
-	public MiniUser(String username, String email, String address,  String roles) {
+//	public MiniUser(String username, String email, String address,  String roles) {
+//		super();
+//		Username = username;;
+//		Email = email;
+//		Address = address;
+//		Roles = roles;
+//	}
+	public MiniUser(int id, String username, String email, String address,  String roles) {
 		super();
+		Id = id;
 		Username = username;;
 		Email = email;
 		Address = address;
@@ -48,10 +57,6 @@ public class MiniUser {
 		Address = address;
 	}
 
-//	public void setID(int iD) {
-//		ID = iD;
-//	}
-
 	public String getUsername() {
 		return Username;
 	}
@@ -60,13 +65,13 @@ public class MiniUser {
 		Username = username;
 	}
 
-//	public String getPassword() {
-//		return Password;
-//	}
+	public String getPassword() {
+		return Password;
+	}
 
-//	public void setPassword(String password) {
-//		Password = password;
-//	}
+	public void setPassword(String password) {
+		Password = password;
+	}
 
 	public String getEmail() {
 		return Email;
@@ -74,5 +79,12 @@ public class MiniUser {
 
 	public void setEmail(String email) {
 		Email = email;
+	}
+	public void setId(int id) {
+		this.Id = id;
+	}
+
+	public int getId() {
+		return Id;
 	}
 }
