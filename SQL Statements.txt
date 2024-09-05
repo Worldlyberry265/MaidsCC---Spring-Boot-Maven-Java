@@ -1,0 +1,78 @@
+1) Creating the Database Schema:
+	CREATE DATABASE maidscc
+
+2)To Use db Database:
+	Use maidscc
+
+3)Creating the Tables:
+
+Note: I should have named them all plural as books,patrons,records, but I noticed that a 
+bit late.
+	
+Books
+-------
+CREATE TABLE Book (
+ID INT PRIMARY KEY AUTO_INCREMENT,
+Title VARCHAR(100) NOT NULL,
+Author VARCHAR(50) NOT NULL,
+Publication_year INT NOT NULL,
+ISBN VARCHAR(13) NOT NULL,
+UNIQUE(ISBN)
+)
+
+
+Patrons:
+---------
+CREATE TABLE Patron (
+ID INT PRIMARY KEY AUTO_INCREMENT,
+PatronName VARCHAR(50) NOT NULL,
+contact_number VARRCHAR(20) NOT NULL,
+UNIQUE(contact_Number)
+
+
+Borrowing_Records:
+------------------
+CREATE TABLE borrowing_record (
+Borrow_ID PRIMARY KEY AUTO_INCREMENT, 
+Book_ID INT NOT NULL,
+Patron_ID INT NOT NULL,
+Borrowing_date DATE NOT NULL,
+Expected_return_date DATE NOT NULL,
+Actual_return_date DATE NULL DEFAULT NULL ,
+FOREIGN KEY (Book_ID) REFERENCES Book (ID),
+FOREIGN KEY (Patron_ID) REFERENCES Patron (ID)
+)
+
+
+4)Insertion Queries (Generated From ChatGPT):
+
+
+INSERT INTO Book (Title, Author, Publication_year, ISBN) 
+VALUES ('To Kill a Mockingbird', 'Harper Lee', 1960, '9780060935467');
+
+INSERT INTO Book (Title, Author, Publication_year, ISBN) 
+VALUES ('1984', 'George Orwell', 1949, '9780451524935');
+
+INSERT INTO Book (Title, Author, Publication_year, ISBN) 
+VALUES ('The Great Gatsby', 'F. Scott Fitzgerald', 1925, '9780743273565');
+
+
+INSERT INTO Patron (PatronName, contact_number) 
+VALUES ('Jane Smith', 0096171772073);
+
+INSERT INTO Patron (PatronName, contact_number) 
+VALUES ('Alice Johnson', 0096170123571);
+
+INSERT INTO Patron (PatronName, contact_number) 
+VALUES ('John Doe', 0096103226598);
+
+
+INSERT INTO borrowing_record (Book_ID, Patron_ID, Borrowing_date, Expected_return_date, Actual_return_date) 
+VALUES (1, 1, '2024-08-01', '2024-08-15', NULL);
+
+INSERT INTO borrowing_record (Book_ID, Patron_ID, Borrowing_date, Expected_return_date, Actual_return_date) 
+VALUES (2, 2, '2024-08-03', '2024-08-17', '2024-08-16');
+
+INSERT INTO borrowing_record (Book_ID, Patron_ID, Borrowing_date, Expected_return_date, Actual_return_date) 
+VALUES (3, 3, '2024-08-05', '2024-08-19', NULL);
+

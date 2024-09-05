@@ -1,0 +1,19 @@
+
+-To run the application, we run the root folder as Spring Boot App.
+
+-All the APIs can be called using Postman through the mentioned URLs, except for the login
+one, it can be accessed through "api/patron/login" and the body should be the id of the 
+patron and his/her password.
+
+-The Tests can be run by running ApiControllerTests as JUnit Test.
+
+-The Login method will take the id and the pass, it will hash the pass, and then compare
+it with the hashed password in the database. Upon successful authentication, it will 
+generate a JWT.
+
+-To try the jwt, we can pass with the update request for example an authorization header
+that has an Auth Type of Bearer Token, where the actual jwt is placed after "Bearer ",
+and then the jwt filter will handle its validation.
+
+-The SQL statements that were used to create the database can be found in a file called
+SQL Statements.txt.
